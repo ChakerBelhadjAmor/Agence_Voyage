@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+}
+
+enum FeedbackStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                  String        @id @default(cuid())
+  email               String        @unique
+  password            String
+  firstName           String
+  lastName            String
+  phone               String?
+  role                Role          @default(CLIENT)
+  resetTokenHash      String?
+  resetTokenExpiresAt DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  reservations Reservation[]
+  feedbacks    Feedback[]
+}
+
+model Travel {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  destination     String
+  price           Decimal  @db.Decimal(10, 2)
+  startDate       DateTime
+  endDate         DateTime
+  capacity        Int
+  imageUrl        String?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  reservations Reservation[]
+  feedbacks    Feedback[]
+
+  @@index([destination])
+  @@index([startDate])
+}
+
+model Reservation {
+  id          String            @id @default(cuid())
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  travel      Travel            @relation(fields: [travelId], references: [id], onDelete: Cascade)
+  travelId    String
+  seats       Int               @default(1)
+  totalPrice  Decimal           @db.Decimal(10, 2)
+  status      ReservationStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  feedback    Feedback?
+
+  @@index([userId])
+  @@index([travelId])
+}
+
+model Feedback {
+  id            String         @id @default(cuid())
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  travel        Travel         @relation(fields: [travelId], references: [id], onDelete: Cascade)
+  travelId      String
+  reservation   Reservation    @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  reservationId String         @unique
+  rating        Int
+  comment       String
+  status        FeedbackStatus @default(PENDING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([travelId])
+}

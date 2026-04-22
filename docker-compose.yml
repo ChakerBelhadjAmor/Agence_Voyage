@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: agency-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agency
+      POSTGRES_PASSWORD: agency
+      POSTGRES_DB: agency
+    ports:
+      - "5432:5432"
+    volumes:
+      - agency-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agency -d agency"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  agency-db-data:

@@ -1,0 +1,38 @@
+node_modules/
+dist/
+.next/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+
+# Environment files
+.env.*
+!.env.example
+!.env*.example
+
+# Build outputs
+build/
+out/
+
+# Caches
+.turbo/
+.cache/
+
+# Prisma local database files
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# Package manager debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor files
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
